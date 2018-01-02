@@ -6,12 +6,3 @@ target :'MWPhotoBrowser_Example' do
   pod "MWPhotoBrowser@guangmingzizai", :path => "../"
   pod 'pop'
 end
-
-target :'MWPhotoBrowser_Tests' do
-  pod "MWPhotoBrowser@guangmingzizai", :path => "../"
-
-  pod 'Specta'
-  pod 'Expecta'
-  pod 'FBSnapshotTestCase'
-  pod 'Expecta+Snapshots'
-end

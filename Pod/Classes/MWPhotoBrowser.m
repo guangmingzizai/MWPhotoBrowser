@@ -788,7 +788,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if ([self scaleAnimationImageViewAtIndex:_currentPageIndex] ||
         [self scaleImageAtIndex:_currentPageIndex]) {
         CGRect scaleAnimationViewOriginalFrame = [self scaleAnimationImageViewOriginalFrameAtIndex:_currentPageIndex];
-        return CGRectIntersectsRect([UIScreen mainScreen].bounds, scaleAnimationViewOriginalFrame);
+        return !CGRectEqualToRect(scaleAnimationViewOriginalFrame, CGRectZero) && CGRectIntersectsRect([UIScreen mainScreen].bounds, scaleAnimationViewOriginalFrame);
     }
     return NO;
 }

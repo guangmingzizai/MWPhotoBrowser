@@ -148,6 +148,7 @@
 		
 		// Get image from browser as it handles ordering of fetching
 		UIImage *img = [_photoBrowser imageForPhoto:_photo];
+        FLAnimatedImage *animatedImage = [_photoBrowser animatedImageForPhoto:_photo];
 		if (img) {
 			
 			// Hide indicator
@@ -156,7 +157,11 @@
                 [self hideLoadingIndicator];
                 
                 // Set image
-                _photoImageView.image = img;
+                if (animatedImage != nil) {
+                    _photoImageView.animatedImage = animatedImage;
+                } else {
+                    _photoImageView.image = img;
+                }
                 _photoImageView.hidden = NO;
                 
                 // Setup photo frame

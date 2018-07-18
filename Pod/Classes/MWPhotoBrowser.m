@@ -1047,6 +1047,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 	return nil;
 }
 
+- (FLAnimatedImage *)animatedImageForPhoto:(id<MWPhoto>)photo {
+    if (photo) {
+        return [photo underlyingAnimatedImage];
+    }
+    return nil;
+}
+
 - (void)loadAdjacentPhotosIfNecessary:(id<MWPhoto>)photo {
     MWZoomingScrollView *page = [self pageDisplayingPhoto:photo];
     if (page) {

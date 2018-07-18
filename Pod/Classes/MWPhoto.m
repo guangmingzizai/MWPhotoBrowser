@@ -10,6 +10,7 @@
 #import <SDWebImage/SDWebImageManager.h>
 #import <SDWebImage/SDWebImageOperation.h>
 #import <AssetsLibrary/AssetsLibrary.h>
+#import <FLAnimatedImage/FLAnimatedImage.h>
 #import "MWPhoto.h"
 #import "MWPhotoBrowser.h"
 
@@ -32,9 +33,11 @@
 @implementation MWPhoto
 
 @synthesize underlyingImage = _underlyingImage; // synth property from protocol
+@synthesize underlyingAnimatedImage = _underlyingAnimatedImage;
 
 @synthesize lowQualityImageURL = _lowQualityImageURL;
 @synthesize lowQualityImage = _lowQualityImage;
+@synthesize lowQualityAnimatedImage = _lowQualityAnimatedImage;
 
 #pragma mark - Class Methods
 
@@ -181,9 +184,10 @@
                         [self performLoadUnderlyingImageAndNotify];
                     } else {
                         if (self.lowQualityImageURL) {
-                            [self _downloadImageWithURL:self.lowQualityImageURL retry:0 completion:^(UIImage *image, BOOL success){
+                            [self _downloadImageWithURL:self.lowQualityImageURL retry:0 completion:^(UIImage *image, FLAnimatedImage *animatedImage, BOOL success){
                                 if (success) {
                                     _lowQualityImage = image;
+                                    _lowQualityAnimatedImage = animatedImage;
                                     [[NSNotificationCenter defaultCenter] postNotificationName:MWPHOTO_LOW_QUALITY_IMAGE_LOADED_NOTIFICATION
                                                                                         object:self];
                                     [self performLoadUnderlyingImageAndNotify];
@@ -253,7 +257,7 @@
     }
 }
 
-// Load from local file
+// Load from web file
 - (void)_performLoadUnderlyingImageAndNotifyWithWebURL:(NSURL *)url {
     @try {
         SDWebImageManager *manager = [SDWebImageManager sharedManager];
@@ -272,7 +276,14 @@
                                                       MWLog(@"SDWebImage failed to download image: %@", error);
                                                   }
                                                   _webImageOperation = nil;
+                                                  if (data != nil) {
+                                                      SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+                                                      if (imageFormat == SDImageFormatGIF) {
+                                                          self.underlyingAnimatedImage = [FLAnimatedImage animatedImageWithGIFData:data];
+                                                      }
+                                                  }
                                                   self.underlyingImage = image;
+                                                  
                                                   dispatch_async(dispatch_get_main_queue(), ^{
                                                       [self imageLoadingComplete];
                                                   });
@@ -385,7 +396,7 @@
 
 #pragma mark - Helper
 
-- (void)_downloadImageWithURL:(NSURL *)imageURL retry:(NSInteger)retry completion:(void (^)(UIImage *image, BOOL success))completion
+- (void)_downloadImageWithURL:(NSURL *)imageURL retry:(NSInteger)retry completion:(void (^)(UIImage *image, FLAnimatedImage *animatedImage, BOOL success))completion
 {
     NSAssert(retry < 5, @"Prevent stack overflowing");
     __block NSInteger retryTime = retry;
@@ -404,13 +415,20 @@
                                                      }
                                                  }
                                                  if (completion) {
-                                                     completion(image, !error && image);
+                                                     FLAnimatedImage *animatedImage = nil;
+                                                     if (data != nil) {
+                                                         SDImageFormat imageFormat = [NSData sd_imageFormatForImageData:data];
+                                                         if (imageFormat == SDImageFormatGIF) {
+                                                             animatedImage = [FLAnimatedImage animatedImageWithGIFData:data];
+                                                         }
+                                                     }
+                                                     completion(image, animatedImage, !error && image);
                                                  }
                                              }];
     } @catch (NSException *e) {
         MWLog(@"Photo from web: %@", e);
         if (completion) {
-            completion(nil, NO);
+            completion(nil, nil, NO);
         }
     }
     

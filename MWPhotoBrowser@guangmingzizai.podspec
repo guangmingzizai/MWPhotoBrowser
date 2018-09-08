@@ -40,7 +40,7 @@ Pod::Spec.new do |s|
   s.dependency 'MBProgressHUD'
   s.dependency 'DACircularProgress', '~> 2.3'
   s.dependency 'pop', '~> 1.0'
-
+  s.dependency 'FLAnimatedImage'
 
   # SDWebImage
   # 3.7.2 contains bugs downloading local files

@@ -1,8 +1,10 @@
 PODS:
   - DACircularProgress (2.3.1)
+  - FLAnimatedImage (1.0.12)
   - MBProgressHUD (1.0.0)
-  - MWPhotoBrowser@guangmingzizai (2.2.3):
+  - "MWPhotoBrowser@guangmingzizai (2.2.5)":
     - DACircularProgress (~> 2.3)
+    - FLAnimatedImage
     - MBProgressHUD
     - pop (~> 1.0)
     - SDWebImage (~> 4.0)
@@ -12,20 +14,30 @@ PODS:
   - SDWebImage/Core (4.2.2)
 
 DEPENDENCIES:
-  - MWPhotoBrowser@guangmingzizai (from `../`)
+  - "MWPhotoBrowser@guangmingzizai (from `../`)"
   - pop
+  - SDWebImage (~> 4.0)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - DACircularProgress
+    - FLAnimatedImage
+    - MBProgressHUD
+    - pop
+    - SDWebImage
 
 EXTERNAL SOURCES:
-  MWPhotoBrowser@guangmingzizai:
-    :path: ../
+  "MWPhotoBrowser@guangmingzizai":
+    :path: "../"
 
 SPEC CHECKSUMS:
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
+  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
-  MWPhotoBrowser@guangmingzizai: a28ffae3c5a97f9971aae2fd09a402b39b0414a7
+  "MWPhotoBrowser@guangmingzizai": 64b6754201610118f428451b64b1be29a627c8e0
   pop: 82ca6b068ce9278fd350fd9dd09482a0ce9492e6
   SDWebImage: 89a9d32cd520bbb46eb14e541d5109b3564af198
 
-PODFILE CHECKSUM: f8fa2f13460940f85a47449e0da120a5f56aa824
+PODFILE CHECKSUM: ac5afe63b85ed583dcab1c130c4c6c8941d2e142
 
-COCOAPODS: 1.3.1
+COCOAPODS: 1.5.3

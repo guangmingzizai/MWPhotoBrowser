@@ -17,6 +17,7 @@
 #import "MWInbilinNavigationBar.h"
 #import "MWMaskView.h"
 #import <SDWebImage/SDWebImageManager.h>
+#import "TLDeviceInfo.h"
 
 #define PADDING                  10
 
@@ -182,8 +183,6 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             _actionBar.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
         }
         
-        _captionView = [[MWInbilinCaptionView alloc] initWithPhoto:nil];
-        
         // Toolbar Items
         if (self.displayNavArrows) {
             NSString *arrowPathFormat = @"MWPhotoBrowser.bundle/UIBarButtonItemArrow%@";
@@ -261,8 +260,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
             self.navigationItem.leftBarButtonItem = _doneButton;
             
-            UIImage *moreActionIcon = [UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/UIBarButtonItemMoreActions@2x" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]];
-            self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:moreActionIcon style:UIBarButtonItemStylePlain target:self action:@selector(actionButtonPressed:)];
+            if (self.displayActionButton) {
+                UIImage *moreActionIcon = [UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/UIBarButtonItemMoreActions@2x" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]];
+                self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:moreActionIcon style:UIBarButtonItemStylePlain target:self action:@selector(actionButtonPressed:)];
+            }
         } else {
             // We're not first so show back button
             UIViewController *previousViewController = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
@@ -558,17 +559,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (void)setNavBarAppearance:(BOOL)animated {
     [self.navigationController setNavigationBarHidden:NO animated:animated];
     UINavigationBar *navBar = self.navigationController.navigationBar;
-    navBar.tintColor = ColorWithRGBA(0x25, 0x25, 0x25, 1.0);
-    navBar.barTintColor = ColorWithRGBA(0xff, 0xc9, 0x38, 1.0);;
+    navBar.tintColor = [UIColor whiteColor];
+    navBar.barTintColor = nil;
     navBar.shadowImage = nil;
+    navBar.translucent = YES;
+    navBar.barStyle = UIBarStyleBlackTranslucent;
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
-    
-    NSShadow *zeroOffsetShadow = [[NSShadow alloc] init];
-    zeroOffsetShadow.shadowOffset = CGSizeMake(0.0, 0.0);
-    [navBar setTitleTextAttributes:@{NSForegroundColorAttributeName : UIColorFromRGB(0x252525),
-                                     NSFontAttributeName: [UIFont boldSystemFontOfSize:16],
-                                     NSShadowAttributeName: zeroOffsetShadow}];
 }
 
 - (void)storePreviousNavBarAppearance {
@@ -1200,12 +1197,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 			MWLog(@"Added page at index %lu", (unsigned long)index);
             
             // Add caption
-//            UIView <MWCaptionView> *captionView = [self captionViewForPhotoAtIndex:index];
-//            if (captionView) {
-//                captionView.frame = [self frameForCaptionView:captionView atIndex:index];
-//                [_pagingScrollView addSubview:captionView];
-//                page.captionView = captionView;
-//            }
+            UIView <MWCaptionView> *captionView = [self captionViewForPhotoAtIndex:index];
+            if (captionView) {
+                captionView.frame = [self frameForCaptionView:captionView atIndex:index];
+                [_pagingScrollView addSubview:captionView];
+                page.captionView = captionView;
+            }
             
             // Add play button if needed
             if (page.displayingVideo) {
@@ -1404,7 +1401,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (CGRect)frameForCaptionView:(UIView <MWCaptionView> *)captionView {
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(self.view.bounds.size.width, 0)];
     CGRect captionFrame = CGRectMake(0,
-                                     self.view.bounds.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0) - (_actionBar?_actionBar.frame.size.height:0),
+                                     self.view.bounds.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0) - (_actionBar?_actionBar.frame.size.height:0) - (IS_IPHONE_X ? 34 : 0),
                                      self.view.bounds.size.width,
                                      captionSize.height);
     return CGRectIntegral(captionFrame);
@@ -1414,7 +1411,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     CGRect pageFrame = [self frameForPageAtIndex:index];
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
     CGRect captionFrame = CGRectMake(pageFrame.origin.x,
-                                     pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0) - (_actionBar?_actionBar.frame.size.height:0),
+                                     pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0) - (_actionBar?_actionBar.frame.size.height:0) - (IS_IPHONE_X ? 34 : 0),
                                      pageFrame.size.width,
                                      captionSize.height);
     return CGRectIntegral(captionFrame);
@@ -1923,39 +1920,41 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         [self.navigationController.navigationBar setAlpha:alpha];
         
         // Toolbar
-        _toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
-        if (hidden) _toolbar.frame = CGRectOffset(_toolbar.frame, 0, animatonOffset);
-        _toolbar.alpha = alpha;
+        self->_toolbar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
+        if (hidden) self->_toolbar.frame = CGRectOffset(self->_toolbar.frame, 0, animatonOffset);
+        self->_toolbar.alpha = alpha;
         
-        if (_actionBar) {
-            _actionBar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
-            if (hidden) _actionBar.frame = CGRectOffset(_actionBar.frame, 0, animatonOffset);
-            _actionBar.alpha = alpha;
+        if (self->_actionBar) {
+            self->_actionBar.frame = [self frameForToolbarAtOrientation:self.interfaceOrientation];
+            if (hidden) self->_actionBar.frame = CGRectOffset(self->_actionBar.frame, 0, animatonOffset);
+            self->_actionBar.alpha = alpha;
         }
         
-        _inbilinSelectionNavigationBar.alpha = alpha;
-        _inbilinSelectionToolBar.alpha = alpha;
+        self->_inbilinSelectionNavigationBar.alpha = alpha;
+        self->_inbilinSelectionToolBar.alpha = alpha;
 
         // Captions
-        for (MWZoomingScrollView *page in _visiblePages) {
+        for (MWZoomingScrollView *page in self->_visiblePages) {
             if (page.captionView) {
                 UIView<MWCaptionView> *v = page.captionView;
                 // Pass any index, all we're interested in is the Y
                 CGRect captionFrame = [self frameForCaptionView:v atIndex:0];
                 captionFrame.origin.x = v.frame.origin.x; // Reset X
-                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, (_toolbar.superview?_toolbar.frame.size.height:0) + (_actionBar?_actionBar.frame.size.height:0));
+                if (hidden) captionFrame = CGRectOffset(captionFrame, 0, (self->_toolbar.superview ? self->_toolbar.frame.size.height : 0) + (self->_actionBar ? self->_actionBar.frame.size.height : 0));
                 v.frame = captionFrame;
+                v.alpha = alpha;
             }
         }
         
-        if (_captionView) {
-            CGRect captionFrame = [self frameForCaptionView:_captionView];
-            if (hidden) captionFrame = CGRectOffset(captionFrame, 0, (_toolbar.superview?_toolbar.frame.size.height:0) + (_actionBar?_actionBar.frame.size.height:0));
-            _captionView.frame = captionFrame;
+        if (self->_captionView) {
+            CGRect captionFrame = [self frameForCaptionView:self->_captionView];
+            if (hidden) captionFrame = CGRectOffset(captionFrame, 0, (self->_toolbar.superview?self->_toolbar.frame.size.height:0) + (self->_actionBar?self->_actionBar.frame.size.height:0));
+            self->_captionView.frame = captionFrame;
+            self->_captionView.alpha = alpha;
         }
         
         // Selected buttons
-        for (MWZoomingScrollView *page in _visiblePages) {
+        for (MWZoomingScrollView *page in self->_visiblePages) {
             if (page.selectedButton) {
                 UIButton *v = page.selectedButton;
                 CGRect newFrame = [self frameForSelectedButton:v atIndex:0];
@@ -2007,7 +2006,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (BOOL)areControlsHidden {
     if (self.mode == MWPhotoBrowserModeNormal) {
-        return (_actionBar.alpha == 0);
+        if (_actionBar) {
+            return (_actionBar.alpha == 0);
+        }
     } else if (self.mode == MWPhotoBrowserModeSelectPhoto) {
         return (_inbilinSelectionNavigationBar.alpha == 0);
     } else if (self.mode == MWPhotoBrowserModeSelectedPhoto) {

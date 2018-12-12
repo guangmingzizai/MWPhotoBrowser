@@ -5,4 +5,5 @@ platform :ios, '7.0'
 target :'MWPhotoBrowser_Example' do
   pod "MWPhotoBrowser@guangmingzizai", :path => "../"
   pod 'pop'
+  pod 'SDWebImage', '~> 4.0'
 end

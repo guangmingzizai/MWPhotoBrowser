@@ -49,7 +49,7 @@ static const CGFloat verticalPadding = 10;
 
 - (void)setupCaption {
     if (!_textView) {
-        UIFont *font = [UIFont systemFontOfSize:14];
+        UIFont *font = [UIFont systemFontOfSize:18];
         _textView = [[UITextView alloc] initWithFrame:self.bounds];
         _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _textView.backgroundColor = [UIColor clearColor];
@@ -95,7 +95,7 @@ static const CGFloat verticalPadding = 10;
 
 - (NSDictionary *)attrbutes {
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.lineSpacing = 0.0f;
+    paragraphStyle.lineSpacing = 1.5f;
     
     NSDictionary *attributes = @{NSParagraphStyleAttributeName: paragraphStyle,
                                  NSForegroundColorAttributeName: [UIColor whiteColor],

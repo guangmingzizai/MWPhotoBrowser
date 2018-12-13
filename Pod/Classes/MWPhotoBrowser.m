@@ -191,10 +191,6 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             _previousButton = [[UIBarButtonItem alloc] initWithImage:previousButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
             _nextButton = [[UIBarButtonItem alloc] initWithImage:nextButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
         }
-        if (self.displayActionButton) {
-            UIImage *moreActionIcon = [UIImage imageForResourcePath:@"MWPhotoBrowser.bundle/UIBarButtonItemMoreActions@2x" ofType:@"png" inBundle:[NSBundle bundleForClass:[self class]]];
-            _actionButton = [[UIBarButtonItem alloc] initWithImage:moreActionIcon style:UIBarButtonItemStylePlain target:self action:@selector(actionButtonPressed:)];
-        }
     } else if (self.mode == MWPhotoBrowserModePurePhoto) {
         _inbilinNavigationBar = [[MWInbilinNavigationBar alloc] initWithFrame:[self frameForInbilinNavigationBar]];
     } else if (self.mode == MWPhotoBrowserModeSelectPhoto) {

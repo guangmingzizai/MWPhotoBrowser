@@ -17,7 +17,7 @@
 #import "MWInbilinNavigationBar.h"
 #import "MWMaskView.h"
 #import <SDWebImage/SDWebImageManager.h>
-#import "TLDeviceInfo.h"
+#import "MWDeviceInfo.h"
 
 #define PADDING                  10
 

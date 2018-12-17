@@ -534,6 +534,14 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
         [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:animated];
     }
+    if (self.mode == MWPhotoBrowserModePurePhoto ||
+        self.mode == MWPhotoBrowserModeSelectPhoto) {
+        if (!_isVCBasedStatusBarAppearance) {
+            
+            // Non-view controller based
+            [[UIApplication sharedApplication] setStatusBarHidden:_previousNavBarHidden withAnimation:UIStatusBarAnimationNone];
+        }
+    }
     
 	// Super
 	[super viewWillDisappear:animated];
